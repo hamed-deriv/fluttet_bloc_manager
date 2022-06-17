@@ -1,0 +1,67 @@
+@startuml
+set namespaceSeparator ::
+
+abstract class "BaseBlocManager" {
+  {static} +String defaultKey
+  +Map<String, BlocBase<Object>> repository
+  +void lazyRegister()
+  +void register()
+  +bool isBlocRegistered()
+  +B fetch()
+  +void addListener()
+  +Future<void> removeListener()
+  +bool hasListener()
+  +void registerStateEmitter()
+  +void emitCoreStates()
+  +Future<void> dispose()
+}
+
+class "BlocManager" {
+  {static} -BlocManager _instance
+  -Map<String, Function> _factories
+  -Map<String, BlocBase<Object>> _repository
+  -Map<String, StreamSubscription<Object>> _subscriptions
+  -List<BaseStateEmitter<BaseStateListener, BlocBase<Object>>> _stateEmitters
+  {static} +BlocManager instance
+  +Map<String, BlocBase<Object>> repository
+  +void lazyRegister()
+  +void register()
+  +bool isBlocRegistered()
+  +B fetch()
+  +void addListener()
+  +Future<void> removeListener()
+  +void registerStateEmitter()
+  +void emitCoreStates()
+  +bool hasListener()
+  -BlocBase<Object>? _invoke()
+  {static} -String _getKey()
+  -bool _hasFactory()
+  -bool _hasRepository()
+  +Future<void> dispose()
+}
+
+"BlocManager" o-- "BlocManager"
+"BaseBlocManager" <|-- "BlocManager"
+
+class "StateDispatcher" {
+  +BaseBlocManager blocManager
+  +String listenerKey
+  +void register()
+  -void _dispatcher()
+}
+
+"StateDispatcher" o-- "BaseBlocManager"
+
+abstract class "BaseStateListener" {
+}
+
+abstract class "BaseStateEmitter" {
+  +BaseBlocManager blocManager
+  +void handleStates()
+  +void call()
+}
+
+"BaseStateEmitter" o-- "BaseBlocManager"
+
+
+@enduml

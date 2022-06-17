@@ -1,29 +1,29 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-import 'package:flutter_bloc_manager/base_event_listener.dart';
+import 'package:flutter_bloc_manager/base_state_listener.dart';
 import 'package:flutter_bloc_manager/base_state_emitter.dart';
 import 'package:flutter_bloc_manager/bloc_managers/base_bloc_manager.dart';
 
 /// Function signature for `StateEmitterBuilder`.
 typedef StateEmitterBuilder = void Function(BaseBlocManager blocManager);
 
-/// Event dispatcher for dispatching core events.
-class EventDispatcher {
-  /// Initializes event dispatcher.
-  EventDispatcher(
+/// State dispatcher for dispatching core states.
+class StateDispatcher {
+  /// Initializes state dispatcher.
+  StateDispatcher(
     this.blocManager, {
-    this.listenerKey = 'CORE_EVENT_LISTENER_KEY',
+    this.listenerKey = 'CORE_STATE_LISTENER_KEY',
   });
 
   /// State manager instance.
   final BaseBlocManager blocManager;
 
-  /// Event listeners key.
+  /// State listeners key.
   final String listenerKey;
 
-  /// Initialises event dispatcher by adding listeners to the shared blocs.
+  /// Initialises State dispatcher by adding listeners to the shared blocs.
   void register<B extends BlocBase<Object>,
-      E extends BaseStateEmitter<BaseEventListener, B>>(
+      S extends BaseStateEmitter<BaseStateListener, B>>(
     StateEmitterBuilder stateEmitterBuilder,
   ) {
     stateEmitterBuilder(blocManager);
@@ -31,16 +31,16 @@ class EventDispatcher {
     if (!blocManager.hasListener<B>(listenerKey)) {
       blocManager.addListener<B>(
         listenerKey: listenerKey,
-        handler: (Object state) => _dispatcher<E>(state),
+        handler: (Object state) => _dispatcher<S>(state),
       );
     }
   }
 
   void _dispatcher<
-          E extends BaseStateEmitter<BaseEventListener, BlocBase<Object>>>(
+          S extends BaseStateEmitter<BaseStateListener, BlocBase<Object>>>(
       Object state) {
     for (int index = 0; index < blocManager.repository.length; index++) {
-      blocManager.emitCoreStates<E>(
+      blocManager.emitCoreStates<S>(
         bloc: blocManager.repository.entries.elementAt(index).value,
         state: state,
       );
